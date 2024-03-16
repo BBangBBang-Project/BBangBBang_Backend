@@ -49,27 +49,6 @@ public class CustomerService {
     }
 
 
-//    //고객 앱에서 주문을 생성하는 경우
-//    public List<Bread> showListByQuickPassword(String quickPassword){
-//        //간편 비밀번호를 유저 테이블에서 찾음
-//        Optional<Customer> byQuickPassword = customerRepository.findByQuickPassword(quickPassword);
-//        //찾으면 픽업 목록 보여줌
-//        if (byQuickPassword.isPresent()) {
-//            Customer customer = byQuickPassword.get();
-//            //로그 찍어보려고 간단 작성
-//            log.info("name={},  password={}, username={}", customer.getName(),
-//                    customer.getPassword(), customer.getUsername());
-//
-//            Long userId = customer.getUserId();
-//            Optional<Order> byUserId = orderRepository.findByCustomer_UserId(userId);
-//            if (byUserId.isPresent()) {
-//                Order order = byUserId.get();
-//                return order.getBreadList();
-//            }
-//        }
-//        return Collections.emptyList();
-//    }
-
     public Customer getCustomerById(Long customerId) {
         return customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));

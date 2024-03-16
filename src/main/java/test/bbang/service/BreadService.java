@@ -3,9 +3,11 @@ package test.bbang.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.bbang.Dto.Bread.BreadLoadListDto;
+import test.bbang.Dto.Bread.BreadRegisterDto;
 import test.bbang.Entity.Bread;
 import test.bbang.repository.BreadRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,24 @@ public class BreadService {
         //dto.setImageUrl(bread.getImageUrl());
         return dto;
     }
+
+
+    public Bread convertToBread(BreadRegisterDto breadRegisterDto){
+        return new Bread(breadRegisterDto.getName(), breadRegisterDto.getPrice(), breadRegisterDto.getStock());
+    }
+
+    public BreadRegisterDto convertToBreadDto(Bread bread){
+        return new BreadRegisterDto(bread.getId(),bread.getName(),bread.getPrice(),bread.getStock());
+    }
+
+    public List<BreadRegisterDto> convertToDtoList(List<Bread> breadList) {
+        List<BreadRegisterDto> breadRegisterDtoList = new ArrayList<>();
+        for (Bread bread : breadList) {
+            breadRegisterDtoList.add(convertToBreadDto(bread));
+        }
+        return breadRegisterDtoList;
+    }
+
 
 }
 
