@@ -11,6 +11,7 @@ import test.bbang.Dto.Bread.BreadRegisterDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Entity.Bread;
 import test.bbang.Entity.Order;
+import test.bbang.Entity.OrderItem;
 import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
 import test.bbang.repository.OrderRepository;
@@ -107,8 +108,7 @@ public class KioskController {
 
         OrderDto orderDto = new OrderDto(breadPurchaseDtoList);
         if(kioskService.orderCheck(orderDto)){
-            //하나의 주문으로 만들고 데이터를 저장해야 할 것인데 .... 
-//            orderService.convertToOrder(breadPurchaseDtoList);
+            orderService.convertToOrder(orderDto);
             return ResponseEntity.ok().body("빵이 구매되었습니다.\n");
         }
         else {
@@ -124,7 +124,7 @@ public class KioskController {
             return ResponseEntity.ok(breadService.convertToDtoList(breadList));
         }
         else{
-            return ResponseEntity.badRequest().body("없는 비밀번호 입니다!");
+            return ResponseEntity.badRequest().body("비어 있음");
         }
     }
 
@@ -134,12 +134,22 @@ public class KioskController {
         Optional<Order> byId = orderRepository.findById(orderId);
         if(byId.isPresent()){
             Order order = byId.get();
+
+            //제대로 저장되었는지 확인을 위해
+//            List<OrderItem> orderItems = order.getOrderItems();
+//            for (OrderItem orderItem : orderItems) {
+//                System.out.println(orderItem.getBread().getId()+" ");
+//                System.out.println(orderItem.getBread().getName() + " "
+//                        + orderItem.getQuantity() + "\n");
+//            }
+
             order.setPickState(true);
             return ResponseEntity.ok().body("픽업 완료!");
         }
         return ResponseEntity.badRequest().body("픽업 실패!");
 
     }
+
 
 
 }
