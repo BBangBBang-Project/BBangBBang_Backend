@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import test.bbang.Dto.Bread.BreadLoadListDto;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
 import test.bbang.Dto.Order.OrderDto;
@@ -13,8 +14,10 @@ import test.bbang.Entity.Order;
 import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
 import test.bbang.repository.OrderRepository;
+import test.bbang.service.BreadService;
 import test.bbang.service.CustomerService;
 import test.bbang.service.KioskService;
+import test.bbang.service.OrderService;
 
 import java.util.List;
 import java.util.Optional;
@@ -24,39 +27,40 @@ import java.util.Optional;
 @Slf4j
 public class KioskController {
 
-    private final CustomerRepository customerRepository;
     private final BreadRepository breadRepository;
-
     private final OrderRepository orderRepository;
     private final KioskService kioskService;
 
-    private final CustomerService customerService;
+    private final OrderService orderService;
+    private final BreadService breadService;
 
-    public KioskController(CustomerRepository customerRepository,
-                           BreadRepository breadRepository,
+    public KioskController(BreadRepository breadRepository,
                            OrderRepository orderRepository,
                            KioskService kioskService,
-                           CustomerService customerService) {
-        this.customerRepository = customerRepository;
+                           OrderService orderService,
+                           BreadService breadService) {
         this.breadRepository = breadRepository;
         this.orderRepository = orderRepository;
         this.kioskService = kioskService;
-        this.customerService = customerService;
+        this.orderService = orderService;
+        this.breadService = breadService;
     }
 
+    //모든 빵 리스트 보기
     @GetMapping("/bread")
-    public List<Bread> getBreadList(){
-        return kioskService.findAllBreads();
+    public List<BreadLoadListDto> getBreadList(){
+        return breadService.listAllBreads();
     }
 
+    //특정 빵 정보 확인
     @GetMapping("/bread/{productId}")
     public ResponseEntity<BreadRegisterDto> getBread(@PathVariable("productId") Long productId){
-        //Id에 맞는 DB에서 빵 데이터를 가져옴
 
+        // 빵DB에서 Id로 검색하여 가져온다.
         Optional<Bread> findBread = breadRepository.findById(productId);
         if(findBread.isPresent()){
             Bread bread = findBread.get();
-            return ResponseEntity.ok().body(kioskService.convertToBreadDto(bread));
+            return ResponseEntity.ok().body(breadService.convertToBreadDto(bread));
         }
         else {
             log.info("상품 ID={}에 해당하는 정보를 찾을 수 없습니다.",productId);
@@ -64,6 +68,7 @@ public class KioskController {
         }
     }
 
+    //판매자 빵 등록
     @PostMapping("/bread")
     public ResponseEntity<?> registerBread(@RequestBody BreadRegisterDto breadRegisterDto) {
 
@@ -102,12 +107,7 @@ public class KioskController {
 
         OrderDto orderDto = new OrderDto(breadPurchaseDtoList);
         if(kioskService.orderCheck(orderDto)){
-//            StringBuilder logText = new StringBuilder();
-//            for (BreadRegisterDto breadRegisterDto : orderDto.getBreadRegisterDtoList()) {
-//                logText.append("Name: ").append(breadRegisterDto.getName())
-//                                .append(", Price: ").append(breadRegisterDto.getPrice())
-//                                .append(", Stock: ").append(breadRegisterDto.getStock()).append("\n");
-//            }
+            orderService.convertToOrder(breadPurchaseDtoList);
             return ResponseEntity.ok().body("빵이 구매되었습니다.\n");
         }
         else {
@@ -115,17 +115,19 @@ public class KioskController {
         }
     }
 
-//    @PostMapping("/pick/{quickPassword}")
-//    public ResponseEntity<List<BreadRegisterDto>> pickUpBread(@PathVariable("quickPassword") String quickPassword){
-//
-//        List<Bread> breadList = customerService.showListByQuickPassword(quickPassword);
-//        if (!breadList.isEmpty())
-//            return ResponseEntity.ok(kioskService.convertToDtoList(breadList));
-//        else
-//            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-//    }
+    @PostMapping("/pick/{quickPassword}")
+    public ResponseEntity<?> pickUpBread(@PathVariable("quickPassword") String quickPassword){
 
-    @PostMapping("pick/{orderId}")
+        List<Bread> breadList = kioskService.findByQuickPassword(quickPassword);
+        if (!breadList.isEmpty()){
+            return ResponseEntity.ok(breadService.convertToDtoList(breadList));
+        }
+        else{
+            return ResponseEntity.badRequest().body("없는 비밀번호 입니다!");
+        }
+    }
+
+    @PostMapping("pick/bread/{orderId}") //픽업 완료 버튼 누르기
     public ResponseEntity<?> completePickUp(@PathVariable("orderId") Long orderId){
 
         Optional<Order> byId = orderRepository.findById(orderId);
