@@ -1,4 +1,4 @@
-package test.bbang.Dto;
+package test.bbang.Dto.Order;
 
 
 import lombok.Data;

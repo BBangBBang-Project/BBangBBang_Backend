@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
-import test.bbang.Dto.OrderDto;
+import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Entity.Bread;
 import test.bbang.Entity.Order;
 import test.bbang.repository.BreadRepository;
@@ -115,15 +115,15 @@ public class KioskController {
         }
     }
 
-    @PostMapping("/pick/{quickPassword}")
-    public ResponseEntity<List<BreadRegisterDto>> pickUpBread(@PathVariable("quickPassword") String quickPassword){
-
-        List<Bread> breadList = customerService.showListByQuickPassword(quickPassword);
-        if (!breadList.isEmpty())
-            return ResponseEntity.ok(kioskService.convertToDtoList(breadList));
-        else
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
-    }
+//    @PostMapping("/pick/{quickPassword}")
+//    public ResponseEntity<List<BreadRegisterDto>> pickUpBread(@PathVariable("quickPassword") String quickPassword){
+//
+//        List<Bread> breadList = customerService.showListByQuickPassword(quickPassword);
+//        if (!breadList.isEmpty())
+//            return ResponseEntity.ok(kioskService.convertToDtoList(breadList));
+//        else
+//            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(null);
+//    }
 
     @PostMapping("pick/{orderId}")
     public ResponseEntity<?> completePickUp(@PathVariable("orderId") Long orderId){
