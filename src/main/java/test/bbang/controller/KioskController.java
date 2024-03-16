@@ -107,7 +107,8 @@ public class KioskController {
 
         OrderDto orderDto = new OrderDto(breadPurchaseDtoList);
         if(kioskService.orderCheck(orderDto)){
-            orderService.convertToOrder(breadPurchaseDtoList);
+            //하나의 주문으로 만들고 데이터를 저장해야 할 것인데 .... 
+//            orderService.convertToOrder(breadPurchaseDtoList);
             return ResponseEntity.ok().body("빵이 구매되었습니다.\n");
         }
         else {
