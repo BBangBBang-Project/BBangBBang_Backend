@@ -26,6 +26,4 @@ public class Bread {
         this.price = price;
         this.stock = stock;
     }
-
-
 }

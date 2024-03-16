@@ -1,9 +1,17 @@
 package test.bbang.Entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 @Entity
+@Getter
+@Setter
 @Table(name = "customer")
 public class Customer {
 
@@ -23,45 +31,11 @@ public class Customer {
     @Column(nullable = false)
     private String quickPassword; // 간편비밀번호
 
-    // Getters and Setters...
+    @OneToOne(mappedBy = "customer", cascade = CascadeType.ALL)
+    @PrimaryKeyJoinColumn
+    private Cart cart;
 
-    public Long getUserId() {
-        return userId;
-    }
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Order> orders = new ArrayList<>();
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getQuickPassword() {
-        return quickPassword;
-    }
-
-    public void setQuickPassword(String quickPassword) {
-        this.quickPassword = quickPassword;
-    }
 }

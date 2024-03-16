@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
-import test.bbang.Dto.OrderDto;
+import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Entity.Bread;
 import test.bbang.repository.BreadRepository;
 
