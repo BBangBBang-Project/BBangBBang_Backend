@@ -5,8 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.bbang.Dto.Cart.CartItemRequestDto;
 import test.bbang.Dto.Cart.CartItemResponseDto;
-import test.bbang.Dto.Cart.PurchaseRequestDto;
-import test.bbang.Dto.Cart.PurchaseResponseDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.*;
 import test.bbang.repository.*;
@@ -76,6 +74,7 @@ public class CartService {
     private Cart createCart(Customer customer) {
         Cart cart = new Cart();
         cart.setCustomer(customer);
+        cartRepository.save(cart);
         return cart;
     }
 
@@ -109,7 +108,7 @@ public class CartService {
     }
 
     @Transactional
-    public OrderResponseDto purchaseCartItems(Long customerId, PurchaseRequestDto purchaseRequestDto) {
+    public OrderResponseDto purchaseCartItems(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
@@ -125,6 +124,15 @@ public class CartService {
 
         List<OrderItem> orderItems = cart.getItems().stream()
                 .map(cartItem -> {
+
+                    Bread bread = cartItem.getBread();
+                    if (bread.getStock() < cartItem.getQuantity()) {
+                        throw new IllegalStateException("Not enough stock for bread " + bread.getName());
+                    }
+                    // 재고 감소
+                    bread.setStock(bread.getStock() - cartItem.getQuantity());
+                    breadRepository.save(bread); // 변경된 재고를 저장
+
                     OrderItem orderItem = new OrderItem();
                     orderItem.setOrder(order);
                     orderItem.setBread(cartItem.getBread());
