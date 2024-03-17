@@ -6,8 +6,6 @@ import org.springframework.web.bind.annotation.*;
 import test.bbang.Dto.Bread.BreadLoadListDto;
 import test.bbang.Dto.Cart.CartItemRequestDto;
 import test.bbang.Dto.Cart.CartItemResponseDto;
-import test.bbang.Dto.Cart.PurchaseRequestDto;
-import test.bbang.Dto.Cart.PurchaseResponseDto;
 import test.bbang.Dto.Customer.SignInRequest;
 import test.bbang.Dto.Customer.SignUpRequest;
 import test.bbang.Dto.Order.OrderResponseDto;
@@ -76,8 +74,8 @@ public class CustomerController {
 
     // 특정 고객의 장바구니에 있는 상품들을 구매한다.
     @PostMapping("/{customerId}/cart/purchase")
-    public ResponseEntity<OrderResponseDto> purchaseCartItems(@PathVariable Long customerId, @RequestBody PurchaseRequestDto purchaseRequestDto) {
-        OrderResponseDto orderResponseDto = cartService.purchaseCartItems(customerId, purchaseRequestDto);
+    public ResponseEntity<OrderResponseDto> purchaseCartItems(@PathVariable Long customerId) {
+        OrderResponseDto orderResponseDto = cartService.purchaseCartItems(customerId);
         return ResponseEntity.ok(orderResponseDto);
     }
 

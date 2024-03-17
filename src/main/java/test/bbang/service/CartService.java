@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import test.bbang.Dto.Cart.CartItemRequestDto;
 import test.bbang.Dto.Cart.CartItemResponseDto;
 import test.bbang.Dto.Cart.PurchaseRequestDto;
-import test.bbang.Dto.Cart.PurchaseResponseDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.*;
 import test.bbang.repository.*;
@@ -109,7 +108,7 @@ public class CartService {
     }
 
     @Transactional
-    public OrderResponseDto purchaseCartItems(Long customerId, PurchaseRequestDto purchaseRequestDto) {
+    public OrderResponseDto purchaseCartItems(Long customerId) {
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
 
