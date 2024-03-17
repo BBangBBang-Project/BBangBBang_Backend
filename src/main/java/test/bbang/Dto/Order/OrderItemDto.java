@@ -16,7 +16,10 @@ public class OrderItemDto {
     private LocalDateTime purchaseDate;
 
     public OrderItemDto(OrderItem orderItem) {
-        // OrderItem 객체로부터 필요한 정보를 매핑합니다.
+        this.productId = orderItem.getBread().getId(); // 빵의 ID
+        this.productName = orderItem.getBread().getName(); // 빵의 이름
+        this.price = orderItem.getPrice(); // 가격
+        this.quantity = orderItem.getQuantity(); // 수량
     }
 }
 

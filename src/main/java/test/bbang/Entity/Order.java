@@ -18,7 +18,7 @@ public class Order {
     private Long orderId;
 
     @ManyToOne
-    @JoinColumn(name = "customer_id", nullable = false) // 외래키를 customer_id로 설정
+    @JoinColumn(name = "customer_id") // 외래키를 customer_id로 설정
     private Customer customer;
 
     @OneToMany(cascade = CascadeType.ALL)
