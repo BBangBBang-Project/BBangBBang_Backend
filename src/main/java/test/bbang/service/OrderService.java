@@ -48,17 +48,41 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-//    public Order convertToOrder(List<BreadPurchaseDto> breadPurchaseDto) {
-//
-//        List<OrderItem> orderItemList = new ArrayList<>();
-//
-//        for (BreadPurchaseDto purchaseDto : breadPurchaseDto) {
-//            OrderItem orderItem = new OrderItem();
-//            orderItem.setOrderItemId(purchaseDto.getId());
-//            orderItem.setQuantity(purchaseDto.getCount());
-//        }
-//
-//        return new Order();
-//    }
+    public void convertToOrder(OrderDto orderDto) {
+
+        List<BreadPurchaseDto> breadPurchaseDtoList = orderDto.getBreadPurchaseDtoList();
+
+        //kiosk를 1번으로 고정 시킬 것임.
+        Customer customer = customerRepository.findById(1L)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        Order order = new Order();
+
+        order.setCustomer(customer);
+
+        List<OrderItem> orderItems = breadPurchaseDtoList.stream()
+                .map(breadPurchaseDto -> {
+                    OrderItem orderItem = new OrderItem();
+                    orderItem.setOrder(order);
+                    Optional<Bread> byId = breadRepository.findById(breadPurchaseDto.getId());
+                    if (byId.isPresent()){
+                        Bread bread = byId.get();
+                        orderItem.setBread(bread);
+                    }
+                    //else처리 해야함
+                    orderItem.setQuantity(breadPurchaseDto.getCount());
+//                    orderItem.setPrice(breadPurchaseDto.getBread().getPrice() * cartItem.getQuantity());
+                    return orderItem;
+                }).collect(Collectors.toList());
+
+        order.setOrderItems(orderItems);
+
+        //테스트
+
+        orderRepository.save(order);
+
+        System.out.println(order.getOrderId()+ " ");
+
+    }
 }
 
