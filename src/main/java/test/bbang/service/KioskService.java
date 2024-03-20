@@ -42,23 +42,25 @@ public class KioskService {
     @Transactional
     public boolean saveBread(BreadRegisterDto breadRegisterDto){
 
-        try{
-            //중복되는 이름의 상품이 있는 지 검색
+        try {
+            // 중복되는 이름의 상품이 있는 지 검색
             Optional<Bread> optionalBread = findByName(breadRegisterDto.getName());
 
-            Bread bread = optionalBread
-                    .map(existingBread -> {
-                        existingBread.setStock(breadRegisterDto.getStock() + existingBread.getStock());
-                        return existingBread;
-                    })
-                    .orElseGet(() -> breadService.convertToBread(breadRegisterDto));
-            breadRepository.save(bread);
-            return true;
-        }
-        catch (Exception e){
-            log.error("saveBread 오류",e);
+            if (optionalBread.isPresent()) {
+                // 이미 같은 이름의 빵이 존재한다면 false 반환
+                return false;
+            } else {
+                // 같은 이름의 빵이 존재하지 않을 경우, 새 빵 객체를 생성하고 저장
+                Bread bread = breadService.convertToBread(breadRegisterDto);
+                breadRepository.save(bread);
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("saveBread 오류", e);
             return false;
         }
+
+
     }
 
     public Optional<Bread> findByName(String name) {
