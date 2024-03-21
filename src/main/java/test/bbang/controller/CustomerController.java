@@ -1,6 +1,7 @@
 package test.bbang.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import test.bbang.Dto.Bread.BreadLoadListDto;
@@ -16,7 +17,9 @@ import test.bbang.service.CustomerService;
 import test.bbang.service.OrderService;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/customer")
@@ -79,11 +82,30 @@ public class CustomerController {
         return ResponseEntity.ok(orderResponseDto);
     }
 
+    // 장바구니에서 아이템 삭제
+    @DeleteMapping("/{customerId}/cart/items/{cartItemId}")
+    public ResponseEntity<?> deleteCartItem(@PathVariable Long customerId, @PathVariable Long cartItemId) {
+        cartService.deleteCartItem(customerId, cartItemId);
+        Map<String, Object> body = new HashMap<>();
+        body.put("message", "CartItem with id " + cartItemId + " was successfully deleted.");
+        body.put("status", "success");
+        return new ResponseEntity<>(body, HttpStatus.OK);
+    }
+
+    // 장바구니 아이템 수량 수정
+    @PatchMapping("/{customerId}/cart/items/{cartItemId}/{quantity}")
+    public ResponseEntity<CartItemResponseDto> updateCartItemQuantity(
+            @PathVariable Long customerId,
+            @PathVariable Long cartItemId,
+            @PathVariable int quantity) {
+        CartItemResponseDto cartItemResponseDto = cartService.updateCartItemQuantity(customerId, cartItemId, quantity);
+        return ResponseEntity.ok(cartItemResponseDto);
+    }
+
     // 구매 내역을 불러온다.
     @GetMapping("/{customerId}/orders")
     public ResponseEntity<List<OrderResponseDto>> getOrders(@PathVariable Long customerId) {
         List<OrderResponseDto> orders = orderService.getOrdersByCustomerId(customerId);
         return ResponseEntity.ok(orders);
     }
-
 }
