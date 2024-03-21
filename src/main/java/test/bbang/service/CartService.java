@@ -150,5 +150,49 @@ public class CartService {
 
         return new OrderResponseDto(order);
     }
+
+    @Transactional
+    public void deleteCartItem(Long customerId, Long cartItemId) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        Cart cart = cartRepository.findByCustomer(customer)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem not found"));
+
+        if (!cart.getItems().contains(cartItem)) {
+            throw new IllegalStateException("CartItem does not belong to Customer's Cart");
+        }
+
+        cart.getItems().remove(cartItem);
+        cartItemRepository.delete(cartItem);
+    }
+
+    @Transactional
+    public CartItemResponseDto updateCartItemQuantity(Long customerId, Long cartItemId, int quantity) {
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity must be at least 1");
+        }
+
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        Cart cart = cartRepository.findByCustomer(customer)
+                .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
+
+        CartItem cartItem = cartItemRepository.findById(cartItemId)
+                .orElseThrow(() -> new ResourceNotFoundException("CartItem not found"));
+
+        if (!cart.getItems().contains(cartItem)) {
+            throw new IllegalStateException("CartItem does not belong to Customer's Cart");
+        }
+
+        cartItem.setQuantity(quantity);
+        cartItemRepository.save(cartItem);
+
+        return createCartItemResponseDto(cartItem);
+    }
 }
 
