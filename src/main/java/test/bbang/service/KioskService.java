@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
+import test.bbang.Dto.Bread.SoldBreadDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Entity.Bread;
 import test.bbang.Entity.Customer;
 import test.bbang.Entity.Order;
+import test.bbang.Entity.OrderItem;
 import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
 import test.bbang.repository.OrderRepository;
@@ -113,27 +115,28 @@ public class KioskService {
     }
 
     //고객 앱에서 주문을 생성하는 경우
-    public List<Bread> findByQuickPassword(String quickPassword){
-        //간편 비밀번호를 유저 테이블에서 찾음
-        Optional<Customer> byQuickPassword = customerRepository.findByQuickPassword(quickPassword);
-        //찾으면 픽업 목록 보여줌
-        if (byQuickPassword.isPresent()) {
-            Customer customer = byQuickPassword.get();
-            //로그 찍어보려고 간단 작성
-            log.info("name={},  password={}, username={}", customer.getName(),
-                    customer.getPassword(), customer.getUsername());
-
-            List<Order> orders = orderRepository.findByCustomer(customer);
-
-            if(!orders.isEmpty()){
-                return orders.stream()
-                        .filter(order -> order.isPickState())
-                        .flatMap(order -> order.getBreadList().stream())
-                        .toList();
-            }
-        }
-        return Collections.emptyList();
+    public List<SoldBreadDto> findByQuickPassword(String quickPassword){
+        return customerRepository.findByQuickPassword(quickPassword)
+                .map(customer -> {
+                    log.info("name={},  password={}, username={}", customer.getName(),
+                            customer.getPassword(), customer.getUsername());
+                    return orderRepository.findByCustomer(customer).stream()
+                            .filter(order -> !order.isPickState())
+                            .flatMap(order -> order.getOrderItems().stream())
+                            .map(orderItem -> new SoldBreadDto(orderItem.getBread().getName(), orderItem.getQuantity()))
+                            .collect(Collectors.toList());
+                })
+                .orElse(Collections.emptyList());
     }
 
+    public boolean setPickStatus(Long orderId){
+        Optional<Order> byId = orderRepository.findById(orderId);
+        if(byId.isPresent()) {
+            Order order = byId.get();
+            order.setPickState(true);
+            orderRepository.save(order);
+            return true;
+        }else return false;
+    }
 
 }
