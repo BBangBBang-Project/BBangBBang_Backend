@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import test.bbang.Dto.Bread.BreadLoadListDto;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
+import test.bbang.Dto.Bread.SoldBreadDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Entity.Bread;
 import test.bbang.Entity.Order;
@@ -119,9 +120,9 @@ public class KioskController {
     @PostMapping("/pick/{quickPassword}")
     public ResponseEntity<?> pickUpBread(@PathVariable("quickPassword") String quickPassword){
 
-        List<Bread> breadList = kioskService.findByQuickPassword(quickPassword);
+        List<SoldBreadDto> breadList = kioskService.findByQuickPassword(quickPassword);
         if (!breadList.isEmpty()){
-            return ResponseEntity.ok(breadService.convertToDtoList(breadList));
+            return ResponseEntity.ok(breadList);
         }
         else{
             return ResponseEntity.badRequest().body("비어 있음");
@@ -131,22 +132,9 @@ public class KioskController {
     @PostMapping("pick/bread/{orderId}") //픽업 완료 버튼 누르기
     public ResponseEntity<?> completePickUp(@PathVariable("orderId") Long orderId){
 
-        Optional<Order> byId = orderRepository.findById(orderId);
-        if(byId.isPresent()){
-            Order order = byId.get();
-
-            //제대로 저장되었는지 확인을 위해
-//            List<OrderItem> orderItems = order.getOrderItems();
-//            for (OrderItem orderItem : orderItems) {
-//                System.out.println(orderItem.getBread().getId()+" ");
-//                System.out.println(orderItem.getBread().getName() + " "
-//                        + orderItem.getQuantity() + "\n");
-//            }
-
-            order.setPickState(true);
+        if(kioskService.setPickStatus(orderId))
             return ResponseEntity.ok().body("픽업 완료!");
-        }
-        return ResponseEntity.badRequest().body("픽업 실패!");
+        else return ResponseEntity.badRequest().body("픽업 실패!");
 
     }
 

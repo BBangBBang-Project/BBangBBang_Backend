@@ -60,6 +60,7 @@ public class OrderService {
 
         order.setCustomer(customer);
 
+
         List<OrderItem> orderItems = breadPurchaseDtoList.stream()
                 .map(breadPurchaseDto -> {
                     OrderItem orderItem = new OrderItem();
@@ -68,20 +69,19 @@ public class OrderService {
                     if (byId.isPresent()){
                         Bread bread = byId.get();
                         orderItem.setBread(bread);
+                        orderItem.setPrice(bread.getPrice() * breadPurchaseDto.getCount());
+                        orderItem.setQuantity(breadPurchaseDto.getCount());
+                    }else{
+                        throw new ResourceNotFoundException("Bread not found with id: " + breadPurchaseDto.getId());
                     }
-                    //else처리 해야함
-                    orderItem.setQuantity(breadPurchaseDto.getCount());
-//                    orderItem.setPrice(breadPurchaseDto.getBread().getPrice() * cartItem.getQuantity());
                     return orderItem;
                 }).collect(Collectors.toList());
 
         order.setOrderItems(orderItems);
-
-        //테스트
+        order.calculateTotalPrice();
+        System.out.println(order.getTotalPrice());
 
         orderRepository.save(order);
-
-        System.out.println(order.getOrderId()+ " ");
 
     }
 }
