@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import test.bbang.Dto.Bread.BreadLoadListDto;
+import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Cart.CartItemRequestDto;
 import test.bbang.Dto.Cart.CartItemResponseDto;
 import test.bbang.Dto.Customer.SignInRequest;
@@ -58,6 +59,13 @@ public class CustomerController {
     public ResponseEntity<List<BreadLoadListDto>> getBreadList() {
         List<BreadLoadListDto> breads = breadService.listAllBreads();
         return ResponseEntity.ok(breads);
+    }
+
+    // 특정 고객아 하나의 상품을 원하는 개수만큼 바로 구매한다.
+    @PostMapping("/{customerId}/purchase")
+    public ResponseEntity<OrderResponseDto> purchaseItems(@PathVariable Long customerId, @RequestBody BreadPurchaseDto breadPurchaseDto) {
+        OrderResponseDto orderResponseDto = orderService.purchaseSingleBreadItem(customerId, breadPurchaseDto);
+        return ResponseEntity.ok(orderResponseDto);
     }
 
     // 장바구니에 상품 추가
