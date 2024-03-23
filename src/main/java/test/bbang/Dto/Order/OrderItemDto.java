@@ -12,8 +12,6 @@ public class OrderItemDto {
     private String productName;
     private Double price;
     private Integer quantity;
-    private String imageUrl;
-    private LocalDateTime purchaseDate;
 
     public OrderItemDto(OrderItem orderItem) {
         this.productId = orderItem.getBread().getId(); // 빵의 ID

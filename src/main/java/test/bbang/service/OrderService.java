@@ -1,19 +1,19 @@
 package test.bbang.service;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Dto.Order.OrderResponseDto;
-import test.bbang.Entity.Bread;
-import test.bbang.Entity.Customer;
-import test.bbang.Entity.Order;
-import test.bbang.Entity.OrderItem;
+import test.bbang.Entity.*;
 import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
 import test.bbang.repository.OrderRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -83,6 +83,45 @@ public class OrderService {
 
         orderRepository.save(order);
 
+    }
+
+    //구매자앱에서 하나의 상품을 원하는 수량만큼 바로 구매하기 했을 경우
+    @Transactional
+    public OrderResponseDto purchaseSingleBreadItem(Long customerId, BreadPurchaseDto breadPurchaseDto) {
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
+
+        Bread bread = breadRepository.findById(breadPurchaseDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bread not found"));
+
+        // 재고 확인
+        if (bread.getStock() < breadPurchaseDto.getCount()) {
+            throw new IllegalStateException("Not enough stock for the bread");
+        }
+
+        // 재고 차감
+        bread.setStock(bread.getStock() - breadPurchaseDto.getCount());
+        breadRepository.save(bread);
+
+        // 주문 생성
+        Order order = new Order();
+        order.setCustomer(customer);
+        order.setOrderDate(LocalDateTime.now());
+
+        // 주문 항목 생성
+        OrderItem orderItem = new OrderItem();
+        orderItem.setBread(bread);
+        orderItem.setQuantity(breadPurchaseDto.getCount());
+        orderItem.setPrice(bread.getPrice() * breadPurchaseDto.getCount());
+        orderItem.setOrder(order);
+
+        // 주문에 주문 항목 추가
+        order.setOrderItems(Collections.singletonList(orderItem));
+        order.calculateTotalPrice(); // Total price 계산 메서드는 구현되어야 함
+
+        orderRepository.save(order);
+
+        return new OrderResponseDto(order);
     }
 }
 
