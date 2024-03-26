@@ -60,7 +60,7 @@ public class KioskService {
                 String imagePath = saveImageOnDisk(breadRegisterDto.getImageFile());
                 // 같은 이름의 빵이 존재하지 않을 경우, 새 빵 객체를 생성하고 저장
                 Bread bread = breadService.convertToBread(breadRegisterDto);
-                bread.setImageUrl(imagePath);
+                bread.setImagePath(imagePath);
                 breadRepository.save(bread);
                 return true;
             }
