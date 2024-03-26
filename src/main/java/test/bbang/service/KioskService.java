@@ -4,6 +4,7 @@ package test.bbang.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.BreadRegisterDto;
 import test.bbang.Dto.Bread.SoldBreadDto;
@@ -16,10 +17,12 @@ import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
 import test.bbang.repository.OrderRepository;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +32,8 @@ public class KioskService {
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
     private final BreadService breadService;
+
+    private static final String IMAGE_DIRECTORY = "./uploads/";
 
     public KioskService(BreadRepository breadRepository,
                         OrderRepository orderRepository,
@@ -52,8 +57,10 @@ public class KioskService {
                 // 이미 같은 이름의 빵이 존재한다면 false 반환
                 return false;
             } else {
+                String imagePath = saveImageOnDisk(breadRegisterDto.getImageFile());
                 // 같은 이름의 빵이 존재하지 않을 경우, 새 빵 객체를 생성하고 저장
                 Bread bread = breadService.convertToBread(breadRegisterDto);
+                bread.setImageUrl(imagePath);
                 breadRepository.save(bread);
                 return true;
             }
@@ -61,8 +68,24 @@ public class KioskService {
             log.error("saveBread 오류", e);
             return false;
         }
+    }
 
+    private String saveImageOnDisk(MultipartFile file) throws IOException {
+        // UUID를 이용해 파일명 생성하여 중복 방지
+        String fileName = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
 
+        // 파일 저장 경로 생성
+        Path directoryPath = Paths.get(IMAGE_DIRECTORY);
+        // 해당 경로가 없으면 새로 생성
+        if (!Files.exists(directoryPath)) {
+            Files.createDirectories(directoryPath);
+        }
+
+        // 이미지 파일을 지정된 경로에 저장
+        Path filePath = directoryPath.resolve(fileName);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        // 저장된 파일 경로를 문자열로 반환
+        return filePath.toString();
     }
 
     public Optional<Bread> findByName(String name) {
