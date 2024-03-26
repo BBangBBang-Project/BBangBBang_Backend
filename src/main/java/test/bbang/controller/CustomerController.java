@@ -8,6 +8,7 @@ import test.bbang.Dto.Bread.BreadLoadListDto;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Cart.CartItemRequestDto;
 import test.bbang.Dto.Cart.CartItemResponseDto;
+import test.bbang.Dto.Cart.CartItemUpdateDto;
 import test.bbang.Dto.Customer.SignInRequest;
 import test.bbang.Dto.Customer.SignUpRequest;
 import test.bbang.Dto.Order.OrderResponseDto;
@@ -101,12 +102,12 @@ public class CustomerController {
     }
 
     // 장바구니 아이템 수량 수정
-    @PatchMapping("/{customerId}/cart/items/{cartItemId}/{quantity}")
+    @PatchMapping("/{customerId}/cart/items/{cartItemId}")
     public ResponseEntity<CartItemResponseDto> updateCartItemQuantity(
             @PathVariable Long customerId,
             @PathVariable Long cartItemId,
-            @PathVariable int quantity) {
-        CartItemResponseDto cartItemResponseDto = cartService.updateCartItemQuantity(customerId, cartItemId, quantity);
+            @RequestBody CartItemUpdateDto updateDto) {
+        CartItemResponseDto cartItemResponseDto = cartService.updateCartItemQuantity(customerId, cartItemId, updateDto.getQuantity());
         return ResponseEntity.ok(cartItemResponseDto);
     }
 
