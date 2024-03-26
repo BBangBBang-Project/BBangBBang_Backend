@@ -32,7 +32,7 @@ public class BreadService {
         dto.setName(bread.getName());
         dto.setPrice((double) bread.getPrice());
         dto.setStock(bread.getStock());
-        //dto.setImageUrl(bread.getImageUrl());
+        dto.setImageUrl(bread.getImageUrl());
         return dto;
     }
 
