@@ -109,12 +109,21 @@ public class KioskController {
 
         OrderDto orderDto = new OrderDto(breadPurchaseDtoList);
         if(kioskService.orderCheck(orderDto)){
-            orderService.convertToOrder(orderDto);
-            return ResponseEntity.ok().body("빵이 구매되었습니다.\n");
+            Long orderId = orderService.convertToOrder(orderDto);
+            return ResponseEntity.ok().body(orderId);
         }
         else {
             return ResponseEntity.badRequest().body("빵이 구매되지 않았습니다.");
         }
+    }
+    @GetMapping("/bread/order/{orderId}")
+    public ResponseEntity<?> getOrder(@PathVariable("orderId")Long orderId){
+        List<SoldBreadDto> breadList = orderService.findOrderById(orderId);
+        if (!breadList.isEmpty()){
+            return ResponseEntity.ok().body(breadList);
+        }
+        else return ResponseEntity.badRequest().body("비어 있음");
+
     }
 
     @PostMapping("/pick/{quickPassword}")
