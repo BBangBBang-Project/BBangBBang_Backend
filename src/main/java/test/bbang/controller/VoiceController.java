@@ -19,7 +19,7 @@ public class VoiceController {
 
 
     @PostMapping
-    public void sendToServer(@RequestBody VoiceDto message) throws IOException {
+    public ResponseEntity<?> sendToServer(@RequestBody VoiceDto message) throws IOException {
 
 
         System.out.println(message.getText());
@@ -32,12 +32,13 @@ public class VoiceController {
 
         for (String text : results.keySet()) {
             QueryResult queryResult = results.get(text);
-//            System.out.println(queryResult);
-            System.out.println("Query Text: " + queryResult.getQueryText());
-            System.out.println("Detected Intent: " + queryResult.getIntent().getDisplayName());
+//            System.out.println("Query Text: " + queryResult.getQueryText());
+//            System.out.println("Detected Intent: " + queryResult.getIntent().getDisplayName());
             System.out.println("Fulfillment Text: " + queryResult.getFulfillmentText());
-        }
+            return ResponseEntity.ok().body(queryResult.getFulfillmentText());
 
+        }
+        return ResponseEntity.badRequest().body("");
     }
 
     @GetMapping
