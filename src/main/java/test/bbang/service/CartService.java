@@ -21,16 +21,18 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final CustomerRepository customerRepository;
     private final OrderRepository orderRepository;
+    private final BreadService breadService;
 
     @Autowired
     public CartService(BreadRepository breadRepository, CartRepository cartRepository,
                        CartItemRepository cartItemRepository, CustomerRepository customerRepository,
-                       OrderRepository orderRepository) {
+                       OrderRepository orderRepository, BreadService breadService) {
         this.breadRepository = breadRepository;
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.customerRepository = customerRepository;
         this.orderRepository = orderRepository;
+        this.breadService = breadService;
     }
 
     public CartItemResponseDto addToCart(Long customerId, CartItemRequestDto cartItemRequestDto) {
@@ -102,9 +104,23 @@ public class CartService {
         Cart cart = cartRepository.findByCustomer(customer)
                 .orElseThrow(() -> new ResourceNotFoundException("Cart not found"));
 
-        return cart.getItems().stream() // 'items'는 Cart 엔터티의 필드명과 일치해야 합니다.
-                .map(CartItemResponseDto::new) // 수정: 생성자를 사용하여 DTO를 생성합니다.
+        return cart.getItems().stream()
+                .map(this::convertToDto)
                 .collect(Collectors.toList());
+    }
+
+    private CartItemResponseDto convertToDto(CartItem cartItem) {
+        CartItemResponseDto dto = new CartItemResponseDto();
+        dto.setCartItemId(cartItem.getId());
+        dto.setProductId(cartItem.getBread().getId());
+        dto.setProductName(cartItem.getBread().getName());
+        dto.setPrice((double) cartItem.getBread().getPrice());
+        dto.setQuantity(cartItem.getQuantity());
+        dto.setTotalPrice((double) (cartItem.getBread().getPrice() * cartItem.getQuantity()));
+        // BreadService의 getImageUrl 메소드를 이용하여 이미지 URL 설정
+        String imageUrl = breadService.getImageUrl(cartItem.getBread().getImagePath());
+        dto.setImageUrl(imageUrl);
+        return dto;
     }
 
     @Transactional
