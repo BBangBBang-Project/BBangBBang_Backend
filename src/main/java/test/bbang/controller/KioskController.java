@@ -72,7 +72,7 @@ public class KioskController {
 
     //판매자 빵 등록
     @PostMapping("/bread")
-    public ResponseEntity<?> registerBread(@RequestBody BreadRegisterDto breadRegisterDto) {
+    public ResponseEntity<?> registerBread(@ModelAttribute BreadRegisterDto breadRegisterDto) {
 
         boolean isSuccess = kioskService.saveBread(breadRegisterDto);
         if (isSuccess) {

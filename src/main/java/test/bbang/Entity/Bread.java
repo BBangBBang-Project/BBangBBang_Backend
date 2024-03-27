@@ -17,7 +17,7 @@ public class Bread {
     private String name;
     private int price;
     private int stock;
-
+    private String imagePath;
 
     public Bread() {
     }
