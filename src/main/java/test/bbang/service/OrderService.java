@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
+import test.bbang.Dto.Bread.SoldBreadDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.*;
@@ -48,7 +49,7 @@ public class OrderService {
                 .collect(Collectors.toList());
     }
 
-    public void convertToOrder(OrderDto orderDto) {
+    public Long convertToOrder(OrderDto orderDto) {
 
         List<BreadPurchaseDto> breadPurchaseDtoList = orderDto.getBreadPurchaseDtoList();
 
@@ -82,6 +83,8 @@ public class OrderService {
         System.out.println(order.getTotalPrice());
 
         orderRepository.save(order);
+        return order.getOrderId();
+
 
     }
 
@@ -123,5 +126,15 @@ public class OrderService {
 
         return new OrderResponseDto(order);
     }
+
+    public List<SoldBreadDto> findOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .map(order -> order.getOrderItems().stream()
+                        .map(orderItem -> new SoldBreadDto(orderItem.getBread().getName(), orderItem.getQuantity()))
+                        .collect(Collectors.toList()))
+                .orElse(Collections.emptyList());
+    }
+
+
 }
 
