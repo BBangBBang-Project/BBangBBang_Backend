@@ -11,8 +11,11 @@ public class CartItemResponseDto {
     private String productName;
     private Double price;
     private Integer quantity;
-    //private String imageUrl;
+    private String imageUrl;
     private Double totalPrice;
+
+    public CartItemResponseDto() {
+    }
 
     public CartItemResponseDto(CartItem cartItem) {
         this.cartItemId = cartItem.getId();

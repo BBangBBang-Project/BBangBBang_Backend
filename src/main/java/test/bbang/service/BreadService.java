@@ -42,7 +42,7 @@ public class BreadService {
         return dto;
     }
 
-    private String getImageUrl(String imagePath) {
+    public String getImageUrl(String imagePath) {
         // 웹 서버의 도메인 또는 IP 주소
         String baseUrl = "http://localhost:8080";
 
