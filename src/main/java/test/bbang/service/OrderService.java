@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Bread.SoldBreadDto;
+import test.bbang.Dto.Order.CheckoutDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.*;
@@ -86,6 +87,23 @@ public class OrderService {
         return order.getOrderId();
 
 
+    }
+
+    public CheckoutDto prepareCheckout(BreadPurchaseDto breadPurchaseDto) {
+
+        Bread bread = breadRepository.findById(breadPurchaseDto.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Bread not found"));
+        System.out.println("breadPurchaseDto = " + breadPurchaseDto);
+        // 결제 정보 생성
+        CheckoutDto checkoutDto = new CheckoutDto();
+        checkoutDto.setBreadId(bread.getId());
+        checkoutDto.setBreadName(bread.getName());
+        checkoutDto.setBreadImage(bread.getImagePath());
+        checkoutDto.setQuantity(breadPurchaseDto.getCount());
+        checkoutDto.setPrice(bread.getPrice());
+        checkoutDto.setTotalPrice(bread.getPrice() * breadPurchaseDto.getCount());
+
+        return checkoutDto;
     }
 
     //구매자앱에서 하나의 상품을 원하는 수량만큼 바로 구매하기 했을 경우

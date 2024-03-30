@@ -11,6 +11,7 @@ import test.bbang.Dto.Cart.CartItemResponseDto;
 import test.bbang.Dto.Cart.CartItemUpdateDto;
 import test.bbang.Dto.Customer.SignInRequest;
 import test.bbang.Dto.Customer.SignUpRequest;
+import test.bbang.Dto.Order.CheckoutDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.Customer;
 import test.bbang.service.BreadService;
@@ -62,7 +63,13 @@ public class CustomerController {
         return ResponseEntity.ok(breads);
     }
 
-    // 특정 고객아 하나의 상품을 원하는 개수만큼 바로 구매한다.
+    @PostMapping("/{customerId}/checkout")
+    public ResponseEntity<CheckoutDto> checkoutBread(@PathVariable Long customerId, @RequestBody BreadPurchaseDto breadPurchaseDto) {
+        CheckoutDto checkoutDto = orderService.prepareCheckout(breadPurchaseDto);
+        return ResponseEntity.ok(checkoutDto);
+    }
+
+    // 특정 고객이 하나의 상품을 원하는 개수만큼 바로 구매한다.
     @PostMapping("/{customerId}/purchase")
     public ResponseEntity<OrderResponseDto> purchaseItems(@PathVariable Long customerId, @RequestBody BreadPurchaseDto breadPurchaseDto) {
         OrderResponseDto orderResponseDto = orderService.purchaseSingleBreadItem(customerId, breadPurchaseDto);
