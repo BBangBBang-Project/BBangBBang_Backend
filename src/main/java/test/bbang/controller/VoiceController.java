@@ -5,7 +5,7 @@ import com.google.cloud.dialogflow.v2.QueryResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import test.bbang.Dto.VoiceDto;
+import test.bbang.Dto.Voice.VoiceDto;
 import test.bbang.service.DetectIntentTexts;
 import java.io.IOException;
 import java.util.ArrayList;
