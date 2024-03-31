@@ -145,9 +145,11 @@ public class KioskService {
                             customer.getPassword(), customer.getUsername());
                     return orderRepository.findByCustomer(customer).stream()
                             .filter(order -> !order.isPickState())
-                            .flatMap(order -> order.getOrderItems().stream())
-                            .map(orderItem -> new SoldBreadDto(orderItem.getBread().getName(), orderItem.getQuantity()))
-                            .collect(Collectors.toList());
+                            .max(Comparator.comparing(Order::getOrderId))
+                            .map(order -> order.getOrderItems().stream()
+                                    .map(orderItem -> new SoldBreadDto(orderItem.getBread().getName(), orderItem.getQuantity()))
+                                    .collect(Collectors.toList()))
+                            .orElse(Collections.emptyList());
                 })
                 .orElse(Collections.emptyList());
     }

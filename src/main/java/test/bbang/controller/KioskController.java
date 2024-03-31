@@ -126,7 +126,7 @@ public class KioskController {
 
     }
 
-    @PostMapping("/pick/{quickPassword}")
+    @GetMapping("/pick/{quickPassword}")
     public ResponseEntity<?> pickUpBread(@PathVariable("quickPassword") String quickPassword){
 
         List<SoldBreadDto> breadList = kioskService.findByQuickPassword(quickPassword);
