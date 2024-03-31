@@ -56,7 +56,7 @@ public class KioskController {
 
     //특정 빵 정보 확인
     @GetMapping("/bread/{productId}")
-    public ResponseEntity<BreadRegisterDto> getBread(@PathVariable("productId") Long productId){
+    public ResponseEntity<BreadLoadListDto> getBread(@PathVariable("productId") Long productId){
 
         // 빵DB에서 Id로 검색하여 가져온다.
         Optional<Bread> findBread = breadRepository.findById(productId);

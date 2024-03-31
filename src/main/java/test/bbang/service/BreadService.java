@@ -62,17 +62,18 @@ public class BreadService {
         return new Bread(breadRegisterDto.getName(), breadRegisterDto.getPrice(), breadRegisterDto.getStock());
     }
 
-    public BreadRegisterDto convertToBreadDto(Bread bread){
-        return new BreadRegisterDto(bread.getId(),bread.getName(),bread.getPrice(),bread.getStock());
+    public BreadLoadListDto convertToBreadDto(Bread bread){
+        String imageUrl = getImageUrl(bread.getImagePath());
+        return new BreadLoadListDto(bread.getId(),bread.getName(), (double) bread.getPrice(),bread.getStock(),imageUrl);
     }
 
-    public List<BreadRegisterDto> convertToDtoList(List<Bread> breadList) {
-        List<BreadRegisterDto> breadRegisterDtoList = new ArrayList<>();
-        for (Bread bread : breadList) {
-            breadRegisterDtoList.add(convertToBreadDto(bread));
-        }
-        return breadRegisterDtoList;
-    }
+//    public List<BreadRegisterDto> convertToDtoList(List<Bread> breadList) {
+//        List<BreadRegisterDto> breadRegisterDtoList = new ArrayList<>();
+//        for (Bread bread : breadList) {
+//            breadRegisterDtoList.add(convertToBreadDto(bread));
+//        }
+//        return breadRegisterDtoList;
+//    }
 
 
 }
