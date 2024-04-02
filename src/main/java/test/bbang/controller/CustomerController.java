@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import test.bbang.Dto.Bread.BreadIdDto;
 import test.bbang.Dto.Bread.BreadLoadListDto;
 import test.bbang.Dto.Bread.BreadPurchaseDto;
 import test.bbang.Dto.Cart.CartItemRequestDto;
@@ -11,13 +12,11 @@ import test.bbang.Dto.Cart.CartItemResponseDto;
 import test.bbang.Dto.Cart.CartItemUpdateDto;
 import test.bbang.Dto.Customer.SignInRequest;
 import test.bbang.Dto.Customer.SignUpRequest;
+import test.bbang.Dto.Favorite.FavoriteItemDto;
 import test.bbang.Dto.Order.CheckoutDto;
 import test.bbang.Dto.Order.OrderResponseDto;
 import test.bbang.Entity.Customer;
-import test.bbang.service.BreadService;
-import test.bbang.service.CartService;
-import test.bbang.service.CustomerService;
-import test.bbang.service.OrderService;
+import test.bbang.service.*;
 
 
 import java.util.HashMap;
@@ -123,5 +122,52 @@ public class CustomerController {
     public ResponseEntity<List<OrderResponseDto>> getOrders(@PathVariable Long customerId) {
         List<OrderResponseDto> orders = orderService.getOrdersByCustomerId(customerId);
         return ResponseEntity.ok(orders);
+    }
+
+    //좋아요 눌러서 찜 목록에 담기
+    @PostMapping("/{customerId}/favorite")
+    public ResponseEntity<FavoriteItemDto> addBreadToFavorites(@PathVariable Long customerId, @RequestBody BreadIdDto breadIdDto) {
+        if (breadIdDto.getId() == null) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        try {
+            FavoriteItemDto favoriteItemDto = customerService.addBreadToFavorites(customerId, breadIdDto.getId());
+            return new ResponseEntity<>(favoriteItemDto, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //찜 목록에 담겨있는 빵 id로 찜 삭제 요청
+    @DeleteMapping("/{customerId}/favorite")
+    public ResponseEntity<?> removeBreadFromFavorites(@PathVariable Long customerId, @RequestBody BreadIdDto breadIdDto) {
+        try {
+            boolean isRemoved = customerService.removeBreadFromFavorites(customerId, breadIdDto.getId());
+            if(isRemoved) {
+                // 삭제 성공 메시지
+                return ResponseEntity.ok("해당 빵 좋아요 삭제 완료");
+            } else {
+                // 삭제 실패 메시지 (목록에 없음)
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 빵은 찜 목록에 존재하지 않습니다.");
+            }
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/{customerId}/favorite")
+    public ResponseEntity<List<FavoriteItemDto>> getFavoriteItems(@PathVariable Long customerId) {
+        try {
+            List<FavoriteItemDto> favoriteItems = customerService.getFavorites(customerId);
+            return new ResponseEntity<>(favoriteItems, HttpStatus.OK);
+        } catch (ResourceNotFoundException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
