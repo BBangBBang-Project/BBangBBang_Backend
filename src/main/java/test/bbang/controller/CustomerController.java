@@ -58,7 +58,7 @@ public class CustomerController {
 
     @GetMapping("/products")
     public ResponseEntity<List<BreadLoadListDto>> getBreadList() {
-        List<BreadLoadListDto> breads = breadService.listAllBreads();
+        List<BreadLoadListDto> breads = breadService.findBreadPopularity();
         return ResponseEntity.ok(breads);
     }
 
