@@ -1,5 +1,6 @@
 package test.bbang.service;
 
+import jakarta.persistence.Tuple;
 import jakarta.servlet.ServletContext;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import test.bbang.Dto.Bread.BreadRegisterDto;
 import test.bbang.Entity.Bread;
 import test.bbang.repository.BreadRepository;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,11 +31,16 @@ public class BreadService {
                 .collect(Collectors.toList());
     }
 
+    // 빵의 인기도 목록을 찾는 메소드
+    public List<BreadLoadListDto> findBreadPopularity() {
+        List<Tuple> tuples = breadRepository.findBreadPopularityNative();
+        return tuples.stream().map(this::convertToBreadLoadListDto).collect(Collectors.toList());
+    }
     private BreadLoadListDto convertToDto(Bread bread) {
         BreadLoadListDto dto = new BreadLoadListDto();
         dto.setId(bread.getId());
         dto.setName(bread.getName());
-        dto.setPrice((double) bread.getPrice());
+        dto.setPrice(bread.getPrice());
         dto.setStock(bread.getStock());
         log.debug("Converting bread entity to DTO. Bread imagePath: {}", bread.getImagePath()); // 로그 추가
         String imageUrl = getImageUrl(bread.getImagePath());
@@ -41,6 +48,28 @@ public class BreadService {
         log.debug("Image URL for bread {}: {}", bread.getId(), imageUrl); // 로그 추가
         return dto;
     }
+
+    private BreadLoadListDto convertToBreadLoadListDto(Tuple tuple) {
+        // 다른 필드 처리는 동일하게 유지
+        // popularityScore를 안전하게 처리하기 위해 null 체크를 추가
+        BigDecimal popularityScoreBigDecimal = tuple.get("popularityScore", BigDecimal.class);
+        Integer popularityScore = (popularityScoreBigDecimal != null) ? popularityScoreBigDecimal.intValue() : 0;
+
+        // imagePath를 Tuple에서 추출
+        String imagePath = tuple.get("imageUrl", String.class);
+        // getImageUrl 메소드를 사용하여 완전한 이미지 URL 생성
+        String imageUrl = getImageUrl(imagePath);
+
+        return new BreadLoadListDto(
+                tuple.get("id", Long.class),
+                tuple.get("name", String.class),
+                tuple.get("price", Integer.class),
+                tuple.get("stock", Integer.class),
+                imageUrl,
+                popularityScore
+        );
+    }
+
 
     public String getImageUrl(String imagePath) {
         // 웹 서버의 도메인 또는 IP 주소
@@ -64,7 +93,7 @@ public class BreadService {
 
     public BreadLoadListDto convertToBreadDto(Bread bread){
         String imageUrl = getImageUrl(bread.getImagePath());
-        return new BreadLoadListDto(bread.getId(),bread.getName(), (double) bread.getPrice(),bread.getStock(),imageUrl);
+        return new BreadLoadListDto(bread.getId(),bread.getName(), bread.getPrice(),bread.getStock(),imageUrl);
     }
 
 //    public List<BreadRegisterDto> convertToDtoList(List<Bread> breadList) {
