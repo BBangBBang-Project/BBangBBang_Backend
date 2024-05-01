@@ -8,32 +8,36 @@ import test.bbang.Dto.Bread.SoldBreadDto;
 import test.bbang.Dto.Order.CheckoutDto;
 import test.bbang.Dto.Order.OrderDto;
 import test.bbang.Dto.Order.OrderResponseDto;
+import test.bbang.Dto.Order.WeeklySalesDto;
 import test.bbang.Entity.*;
 import test.bbang.repository.BreadRepository;
 import test.bbang.repository.CustomerRepository;
+import test.bbang.repository.OrderItemRepository;
 import test.bbang.repository.OrderRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.time.temporal.ChronoField;
+import java.util.*;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
 
+    private static final Logger LOGGER = Logger.getLogger(OrderService.class.getName());
     private final OrderRepository orderRepository;
     private final CustomerRepository customerRepository;
-
+    private  final OrderItemRepository orderItemRepository;
     private final BreadRepository breadRepository;
 
     @Autowired
-    public OrderService(OrderRepository orderRepository,
+    public OrderService(OrderRepository orderRepository, OrderItemRepository orderItemRepository,
                             CustomerRepository customerRepository,BreadRepository breadRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.breadRepository = breadRepository;
+        this.orderItemRepository = orderItemRepository;
     }
 
     public List<OrderResponseDto> getOrdersByCustomerId(Long customerId) {
@@ -153,6 +157,64 @@ public class OrderService {
                 .orElse(Collections.emptyList());
     }
 
+    public WeeklySalesDto getWeeklySalesStatistics() {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfThisWeek = now.with(java.time.DayOfWeek.MONDAY);
+        LocalDate startOfLastWeek = startOfThisWeek.minusWeeks(1);
+        LocalDate endOfLastWeek = startOfThisWeek.minusDays(1);
+
+        // 날짜 로그를 기록
+        LOGGER.info("This Week Starts: " + startOfThisWeek);
+        LOGGER.info("Last Week Starts: " + startOfLastWeek);
+        LOGGER.info("Last Week Ends: " + endOfLastWeek);
+
+        List<Order> thisWeekOrders = orderRepository.findAllWithOrderDateBetween(startOfThisWeek.atStartOfDay(), LocalDateTime.now());
+        List<Order> lastWeekOrders = orderRepository.findAllWithOrderDateBetween(startOfLastWeek.atStartOfDay(), endOfLastWeek.atTime(23, 59));
+
+        return createWeeklySalesDto(thisWeekOrders, lastWeekOrders);
+    }
+
+    private WeeklySalesDto createWeeklySalesDto(List<Order> thisWeekOrders, List<Order> lastWeekOrders) {
+        WeeklySalesDto weeklySalesDto = new WeeklySalesDto();
+
+        // 이번 주 판매 통계
+        weeklySalesDto.setThisWeekTotalSales(thisWeekOrders.stream().mapToDouble(Order::getTotalPrice).sum());
+        weeklySalesDto.setThisWeekBreadSales(extractBreadSales(thisWeekOrders));
+
+        // 지난 주 판매 통계
+        weeklySalesDto.setLastWeekTotalSales(lastWeekOrders.stream().mapToDouble(Order::getTotalPrice).sum());
+        weeklySalesDto.setLastWeekBreadSales(extractBreadSales(lastWeekOrders));
+
+        return weeklySalesDto;
+    }
+
+    private List<WeeklySalesDto.BreadSalesDto> extractBreadSales(List<Order> orders) {
+        Map<Long, Integer> breadIdToQuantityMap = new HashMap<>();
+
+        // 주문 항목에서 빵 ID와 수량을 추출하여 Map에 저장합니다. 같은 ID를 가진 빵의 수량은 합산됩니다.
+        orders.forEach(order -> order.getOrderItems().forEach(orderItem -> {
+            Bread bread = orderItem.getBread();
+            breadIdToQuantityMap.merge(bread.getId(), orderItem.getQuantity(), Integer::sum);
+        }));
+
+        // 최종 결과를 저장할 리스트를 생성합니다.
+        List<WeeklySalesDto.BreadSalesDto> breadSales = new ArrayList<>();
+
+        // Map에 저장된 정보를 바탕으로 최종 결과 리스트를 생성합니다.
+        breadIdToQuantityMap.forEach((breadId, quantity) -> {
+            // 빵 ID를 사용하여 빵 이름을 조회합니다.
+            Bread bread = breadRepository.findById(breadId).orElseThrow(() -> new RuntimeException("Bread not found: " + breadId));
+
+            WeeklySalesDto.BreadSalesDto dto = new WeeklySalesDto.BreadSalesDto();
+            dto.setBreadId(bread.getId());
+            dto.setBreadName(bread.getName());
+            dto.setQuantity(quantity);
+
+            breadSales.add(dto);
+        });
+
+        return breadSales;
+    }
 
 }
 

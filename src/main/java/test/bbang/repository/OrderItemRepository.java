@@ -6,6 +6,7 @@ import org.springframework.stereotype.Repository;
 import test.bbang.Dto.Bread.SoldBreadDto;
 import test.bbang.Entity.OrderItem;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
@@ -17,4 +18,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             "JOIN oi.bread b " +
             "GROUP BY b.name")
     List<SoldBreadDto> findSoldBreads();
+
 }
+
