@@ -102,7 +102,7 @@ public class OrderService {
         CheckoutDto checkoutDto = new CheckoutDto();
         checkoutDto.setBreadId(bread.getId());
         checkoutDto.setBreadName(bread.getName());
-        checkoutDto.setBreadImage(bread.getImagePath());
+        checkoutDto.setBreadImage(getImageUrl(bread.getImagePath()));
         checkoutDto.setQuantity(breadPurchaseDto.getCount());
         checkoutDto.setPrice(bread.getPrice());
         checkoutDto.setTotalPrice(bread.getPrice() * breadPurchaseDto.getCount());
@@ -110,6 +110,21 @@ public class OrderService {
         return checkoutDto;
     }
 
+    public String getImageUrl(String imagePath) {
+        // 웹 서버의 도메인 또는 IP 주소
+        String baseUrl = "http://localhost:8080";
+
+        // imagePath가 null이 아닐 때만 처리
+        if (imagePath != null && !imagePath.isEmpty()) {
+            // 이미지 경로에서 'uploads' 디렉토리까지의 경로를 제거하고, URL 생성
+            String imageUrl = baseUrl + "/images/" + imagePath.substring(imagePath.lastIndexOf("uploads") + 8);
+            return imageUrl;
+        } else {
+            // imagePath가 null이거나 빈 문자열일 경우 기본 이미지 URL을 반환하거나, null을 반환
+            // 예: 기본 이미지를 가리키는 URL이나, null을 반환하거나, 혹은 적절한 처리를 할 수 있습니다.
+            return baseUrl + "/images/default-image.png"; // 예시로 기본 이미지 경로를 설정
+        }
+    }
     //구매자앱에서 하나의 상품을 원하는 수량만큼 바로 구매하기 했을 경우
     @Transactional
     public OrderResponseDto purchaseSingleBreadItem(Long customerId, BreadPurchaseDto breadPurchaseDto) {

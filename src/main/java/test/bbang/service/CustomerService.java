@@ -144,8 +144,24 @@ public class CustomerService {
 
         // 찜 목록에서 FavoriteItem 리스트를 FavoriteItemResponseDTO 리스트로 변환
         return favorite.getItems().stream()
-                .map(item -> new FavoriteItemDto(item.getId(), item.getBread().getId(), item.getBread().getName(), item.getBread().getPrice()))
+                .map(item -> new FavoriteItemDto(item.getId(), item.getBread().getId(), item.getBread().getName(), item.getBread().getPrice(), getImageUrl(item.getBread().getImagePath())))
                 .collect(Collectors.toList());
+    }
+
+    public String getImageUrl(String imagePath) {
+        // 웹 서버의 도메인 또는 IP 주소
+        String baseUrl = "http://localhost:8080";
+
+        // imagePath가 null이 아닐 때만 처리
+        if (imagePath != null && !imagePath.isEmpty()) {
+            // 이미지 경로에서 'uploads' 디렉토리까지의 경로를 제거하고, URL 생성
+            String imageUrl = baseUrl + "/images/" + imagePath.substring(imagePath.lastIndexOf("uploads") + 8);
+            return imageUrl;
+        } else {
+            // imagePath가 null이거나 빈 문자열일 경우 기본 이미지 URL을 반환하거나, null을 반환
+            // 예: 기본 이미지를 가리키는 URL이나, null을 반환하거나, 혹은 적절한 처리를 할 수 있습니다.
+            return baseUrl + "/images/default-image.png"; // 예시로 기본 이미지 경로를 설정
+        }
     }
 }
 
