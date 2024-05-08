@@ -30,6 +30,5 @@ public class BreadLoadListDto {
         this.stock = stock;
         this.imageUrl = imageUrl;
         this.popularityScore = popularityScore;
-
     }
 }
