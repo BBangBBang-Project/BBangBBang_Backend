@@ -7,6 +7,7 @@ import com.google.cloud.dialogflow.v2.SessionName;
 import com.google.cloud.dialogflow.v2.SessionsClient;
 import com.google.cloud.dialogflow.v2.TextInput;
 import com.google.common.collect.Maps;
+import com.google.protobuf.Value;
 import test.bbang.controller.VoiceController;
 
 import java.io.IOException;
@@ -47,11 +48,11 @@ public class DetectIntentTexts {
                 System.out.format(
                         "Detected Intent: %s (confidence: %f)\n",
                         queryResult.getIntent().getDisplayName(), queryResult.getIntentDetectionConfidence());
-                System.out.format(
-                        "Fulfillment Text: '%s'\n",
-                        queryResult.getFulfillmentMessagesCount() > 0
-                                ? queryResult.getFulfillmentMessages(0).getText()
-                                : "Triggered Default Fallback Intent");
+//                System.out.format(
+//                        "Fulfillment Text: '%s'\n",
+//                        queryResult.getFulfillmentMessagesCount() > 0
+//                                ? queryResult.getFulfillmentMessages(0).getText()
+//                                : "Triggered Default Fallback Intent");
 
                 queryResults.put(text, queryResult);
             }
