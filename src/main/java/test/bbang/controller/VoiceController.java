@@ -53,23 +53,26 @@ public class VoiceController {
                         case "menu":
                             menu = value.getStringValue();
                             break;
-                        case "number":
-                            number = String.valueOf((int)value.getNumberValue());
-                            break;
+                        case "number": // 개수가 없으면 0으로 나오고
+                            if(value.getNumberValue()!=0.0) {
+                                number = String.valueOf((int) value.getNumberValue());
+                                break;
+                            }
+                        case "num":
+                            if(!value.getStringValue().isEmpty()) {
+                                number = value.getStringValue();
+                                break;
+                            }
                     }
-
                 }
-                if(number.equals("0"))
+
+                if(number.equals("0") || number.isEmpty())
                     number = "1";
 
                 sendMessage = menu + " " + number + "개를 " + queryResult.getFulfillmentText();
-                System.out.println(sendMessage);
 
                 return ResponseEntity.ok().body(sendMessage);
             }
-
-//            System.out.println(sendMessage);
-
 
             return ResponseEntity.ok().body(queryResult.getFulfillmentText());
 
