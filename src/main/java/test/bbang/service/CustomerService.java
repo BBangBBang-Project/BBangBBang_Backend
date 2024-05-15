@@ -150,7 +150,7 @@ public class CustomerService {
 
     public String getImageUrl(String imagePath) {
         // 웹 서버의 도메인 또는 IP 주소
-        String baseUrl = "http://localhost:8080";
+        String baseUrl = "http://52.79.172.135:8080";
 
         // imagePath가 null이 아닐 때만 처리
         if (imagePath != null && !imagePath.isEmpty()) {
