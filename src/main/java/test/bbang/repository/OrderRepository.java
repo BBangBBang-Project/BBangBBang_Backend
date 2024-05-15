@@ -13,4 +13,7 @@ public interface OrderRepository extends JpaRepository<Order,Long> {
 
     @Query("SELECT o FROM Order o WHERE o.orderDate >= :startDate AND o.orderDate <= :endDate")
     List<Order> findAllWithOrderDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+
+    // 주문을 날짜 순으로 오름차순 정렬하여 조회
+    List<Order> findAllByOrderByOrderDateAsc();
 }
