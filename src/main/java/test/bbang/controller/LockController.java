@@ -11,7 +11,7 @@ import org.springframework.web.client.RestTemplate;
 public class LockController {
 
     // 일단 내 핫스팟으로 연결된 라즈베리파이의 주소로 설정했다.
-    private final String RASPBERRY_PI_ENDPOINT = "http://172.20.10.2:5000";
+    private final String RASPBERRY_PI_ENDPOINT = "https://raspberrypi.ngrok.io";
 
     private final RestTemplate restTemplate = new RestTemplate();
 
