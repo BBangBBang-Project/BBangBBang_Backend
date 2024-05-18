@@ -34,8 +34,6 @@ public class VoiceController {
         String sendMessage = "";
         for (String text : results.keySet()) {
             QueryResult queryResult = results.get(text);
-//            System.out.println("Query Text: " + queryResult.getQueryText());
-//            System.out.println("Detected Intent: " + queryResult.getIntent().getDisplayName());
             System.out.println("Fulfillment Text: " + queryResult.getFulfillmentText());
 
 
@@ -69,13 +67,14 @@ public class VoiceController {
                 if(number.equals("0") || number.isEmpty())
                     number = "1";
 
-                sendMessage = menu + " " + number + "개를 " + queryResult.getFulfillmentText();
+                if(queryResult.getFulfillmentText().equals("잘못 알아들었어요. 다시 말씀해주세요."))
+                    sendMessage = queryResult.getFulfillmentText();
+                else sendMessage = menu + " " + number + "개를 " + queryResult.getFulfillmentText();
 
                 return ResponseEntity.ok().body(sendMessage);
             }
 
             return ResponseEntity.ok().body(queryResult.getFulfillmentText());
-
         }
         return ResponseEntity.badRequest().body("");
     }
