@@ -26,7 +26,7 @@ public class DetectIntentTexts {
         try (SessionsClient sessionsClient = SessionsClient.create()) {
             // Set the session name using the sessionId (UUID) and projectID (my-project-id)
             SessionName session = SessionName.of(projectId, sessionId);
-            System.out.println("Session Path: " + session.toString());
+//            System.out.println("Session Path: " + session.toString());
 
             // Detect intents for each text input
             for (String text : texts) {
@@ -45,9 +45,9 @@ public class DetectIntentTexts {
 
                 System.out.println("====================");
                 System.out.format("Query Text: '%s'\n", queryResult.getQueryText());
-                System.out.format(
-                        "Detected Intent: %s (confidence: %f)\n",
-                        queryResult.getIntent().getDisplayName(), queryResult.getIntentDetectionConfidence());
+//                System.out.format(
+//                        "Detected Intent: %s (confidence: %f)\n",
+//                        queryResult.getIntent().getDisplayName(), queryResult.getIntentDetectionConfidence());
 //                System.out.format(
 //                        "Fulfillment Text: '%s'\n",
 //                        queryResult.getFulfillmentMessagesCount() > 0

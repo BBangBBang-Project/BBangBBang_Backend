@@ -44,7 +44,7 @@ public class VoiceController {
                 String number = "";
                 // 엔티티 이름을 키로 사용하여 값을 출력
                 for (Map.Entry<String, Value> entry : parameters.entrySet()) {
-                    System.out.println("Entity Name: " + entry.getKey());
+//                    System.out.println("Entity Name: " + entry.getKey());
                     Value value = entry.getValue();
 
                     switch(entry.getKey()){

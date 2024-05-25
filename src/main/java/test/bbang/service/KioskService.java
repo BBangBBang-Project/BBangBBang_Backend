@@ -33,7 +33,7 @@ public class KioskService {
     private final CustomerRepository customerRepository;
     private final BreadService breadService;
 
-    private static final String IMAGE_DIRECTORY = "./uploads/";
+    private static final String IMAGE_DIRECTORY = "/home/ubuntu/bbang/uploads/";
 
     public KioskService(BreadRepository breadRepository,
                         OrderRepository orderRepository,
