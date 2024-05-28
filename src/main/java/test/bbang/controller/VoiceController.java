@@ -52,12 +52,12 @@ public class VoiceController {
                             menu = value.getStringValue();
                             break;
                         case "number": // 개수가 없으면 0으로 나오고
-                            if(value.getNumberValue()!=0.0) {
+                            if(value.getNumberValue()!=0) {
                                 number = String.valueOf((int) value.getNumberValue());
                                 break;
                             }
                         case "num":
-                            if(!value.getStringValue().isEmpty()) {
+                            if(!value.getStringValue().equals("0")) {
                                 number = value.getStringValue();
                                 break;
                             }
